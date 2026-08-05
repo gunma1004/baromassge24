@@ -15,7 +15,7 @@ os.makedirs(output_dir, exist_ok=True)
 # 생성된 모든 페이지의 URL을 담을 리스트 (사이트맵 생성용)
 all_page_urls = [f"{SITE_URL}/index.html"]
 
-# 2. 데이터 구조화 (서울, 인천, 경기, 대전 전지역)
+# 2. 데이터 구조화 (서울, 인천, 경기, 대전, 청주 전지역)
 district_to_towns = {}
 district_to_city = {}
 
@@ -47,15 +47,42 @@ for dist, towns in incheon_data.items():
     district_to_city[dist] = "incheon"
     district_to_towns[dist] = towns
 
-# (3) 경기도 주요 시/구 데이터
+# (3) 🌟 경기도 전지역 (주요 시/구 대폭 추가)
 gyeonggi_data = {
     "수원시 장안구": ["영화동", "조원동", "파장동", "정자동", "이목동", "율전동"],
     "수원시 권선구": ["세류동", "평동", "서둔동", "구운동", "금곡동", "호매실동", "권선동"],
+    "수원시 팔달구": ["행궁동", "매교동", "매산동", "고등동", "화서동", "지동", "우만동", "인계동"],
+    "수원시 영통구": ["매탄동", "원천동", "이의동", "하동", "영통동", "망포동"],
+    "성남시 수정구": ["신흥동", "태평동", "수진동", "단대동", "산성동", "양지동", "복정동", "위례동"],
+    "성남시 중원구": ["성남동", "중동", "금광동", "은행동", "상대원동", "하대원동", "도촌동"],
     "성남시 분당구": ["분당동", "수내동", "정자동", "서현동", "이매동", "야탑동", "금곡동", "구미동", "판교동"],
-    "고양시 일산동구": ["식사동", "중산동", "정발산동", "백석동", "마두동", "장항동"],
+    "고양시 덕양구": ["주교동", "원당동", "신원동", "흥도동", "성사동", "신도동", "창릉동", "고양동", "관산동", "능곡동", "화정동", "행주동", "행신동"],
+    "고양시 일산동구": ["식사동", "중산동", "정발산동", "백석동", "마두동", "장항동", "풍동"],
+    "고양시 일산서구": ["일산동", "탄현동", "주엽동", "대화동", "덕이동", "가좌동"],
+    "용인시 처인구": ["포곡읍", "모현읍", "남사읍", " 이동읍", "원삼면", "백암면", "양지면", "중앙동", "역북동", "삼가동", "유방동"],
+    "용인시 기흥구": ["신갈동", "영덕동", "구갈동", "상갈동", "보라동", "기흥동", "서농동", "구성동", "마북동", "동백동", "상하동", "보정동"],
     "용인시 수지구": ["풍덕천동", "상현동", "성복동", "죽전동", "동천동", "신봉동"],
-    "부천시": ["원미동", "소사동", "역곡동", "중동", "상동", "심곡동"],
-    "화성시": ["동탄동", "병점동", "봉담읍", "남양읍", "향남읍"]
+    "부천시": ["원미동", "소사동", "역곡동", "중동", "상동", "심곡동", "신흥동", "대장동"],
+    "화성시": ["동탄동", "병점동", "봉담읍", "남양읍", "향남읍", "우정읍", "마도면", "송산면", "서신면", "팔탄면", "장안면", "양감면", "정남면"],
+    "안양시 만안구": ["안양동", "석수동", "박달동"],
+    "안양시 동안구": ["비산동", "관양동", "평촌동", "호계동", "범계동"],
+    "안산시 상록구": ["본오동", "사동", "월피동", "일동", "이동", "성포동", "부곡동"],
+    "안산시 단원구": ["고잔동", "초지동", "원곡동", "선부동", "대부동", "신길동"],
+    "평택시": ["팽성읍", "안중읍", "포승읍", "청북읍", "진위면", "서탄면", "현덕면", "중앙동", "서정동", "송탄동", "지산동", "송북동", "신장동", "신평동", "원평동", "통복동", "비전동", "세교동"],
+    "시흥시": ["대야동", "신천동", "은행동", "매화동", "목감동", "군자동", "월곶동", "정왕동", "연성동", "배곧동"],
+    "파주시": ["문산읍", "파주읍", "법원읍", "조리읍", "월롱면", "탄현면", "광탄면", "파평면", "적성면", "군내면", "금촌동", "운정동"],
+    "김포시": ["통진읍", "고촌읍", "양촌읍", "대곶면", "월곶면", "하성면", "김포본동", "장기동", "사우동", "풍무동", "운양동", "구래동", "마산동"],
+    "광명시": ["광명동", "철산동", "하안동", "소하동", "학온동"],
+    "광주시": ["초월읍", "곤지암읍", "도척면", "퇴촌면", "남종면", "남한산성면", "경안동", "쌍령동", "송정동", "광남동"],
+    "하남시": ["천현동", "신장동", "덕풍동", "풍산동", "미사동", "감일동", "위례동", "춘궁동", "초이동"],
+    "양주시": ["백석읍", "은현면", "남면", "광적면", "장흥면", "양주동", "회천동"],
+    "구리시": ["갈매동", "동구동", "인창동", "교문동", "수택동", "아천동"],
+    "오산시": ["중앙동", "남촌동", "신장동", "세마동", "초평동", "대원동"],
+    "이천시": ["장호원읍", "부발읍", "신둔면", "백사면", "호법면", "마장면", "대월면", "모가면", "설성면", "율면", "창전동", "증포동", "중리동", "관고동"],
+    "안성시": ["공도읍", "보개면", "금광면", "서운면", "미양면", "대덕면", "양성면", "원곡면", "고삼면", "일죽면", "죽산면", "삼죽면", "안성동"],
+    "의왕시": ["고천동", "부곡동", "오전동", "내손동", "청계동"],
+    "포천시": ["소흘읍", "군내면", "내촌면", "가산면", "신북면", "창수면", "영중면", "일동면", "이동면", "영북면", "관인면", "화현면", "포천동", "선단동"],
+    "여주시": ["가남읍", "점동면", "흥천면", "금사면", "산북면", "대신면", "북내면", "강천면", "산북면", "여흥동", "중앙동", "오학동"]
 }
 for dist, towns in gyeonggi_data.items():
     district_to_city[dist] = "gyeonggi"
@@ -73,6 +100,17 @@ for dist, towns in daejeon_data.items():
     district_to_city[dist] = "daejeon"
     district_to_towns[dist] = towns
 
+# (5) 🌟 청주시 전지역 (상당구, 흥덕구, 청원구, 서원구)
+cheongju_data = {
+    "청주시 상당구": ["성안동", "탑대성동", "영운동", "금천동", "용담명암산성동", "용암1동", "용암2동", "남일면", "문의면"],
+    "청주시 흥덕구": ["운천신봉동", "복대1동", "복대2동", "가경동", "봉명1동", "봉명2송정동", "강서1동", "강서2동", "오송읍", "강내면"],
+    "청주시 청원구": ["내덕1동", "내덕2동", "율량사천동", "오근장동", "오창읍", "내수읍"],
+    "청주시 서원구": ["사직1동", "사직2동", "사창동", "모충동", "수곡1동", "수곡2동", "산남동", "분평동", "성화개신죽림동"]
+}
+for dist, towns in cheongju_data.items():
+    district_to_city[dist] = "cheongju"
+    district_to_towns[dist] = towns
+
 
 # 3. 최상위 메인 화면 네비게이션 생성
 main_nav_html = '<div class="max-w-5xl mx-auto px-4 py-8"><h2 class="text-xl font-black text-white mb-6 text-center">📍 전국 지역별 전문관</h2>'
@@ -80,6 +118,7 @@ seoul_dists = [d for d, c in district_to_city.items() if c == "seoul"]
 incheon_dists = [d for d, c in district_to_city.items() if c == "incheon"]
 gyeonggi_dists = [d for d, c in district_to_city.items() if c == "gyeonggi"]
 daejeon_dists = [d for d, c in district_to_city.items() if c == "daejeon"]
+cheongju_dists = [d for d, c in district_to_city.items() if c == "cheongju"]
 
 if seoul_dists:
     main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🏙️ 서울특별시</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 mb-6">'
@@ -100,20 +139,26 @@ if gyeonggi_dists:
     main_nav_html += '</div>'
 
 if daejeon_dists:
-    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (제휴점 2개 단독)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
+    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (프리미엄 전용)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 mb-6">'
     for dist in daejeon_dists:
         main_nav_html += f'<a href="output/daejeon/{dist}/index.html" class="bg-[#18181c] border border-gold-500/30 hover:border-gold-400 text-gray-200 hover:text-gold-400 py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all shadow-sm">{dist}</a>'
+    main_nav_html += '</div>'
+
+if cheongju_dists:
+    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌿 청주시 (프리미엄 전용)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
+    for dist in cheongju_dists:
+        main_nav_html += f'<a href="output/cheongju/{dist}/index.html" class="bg-[#18181c] border border-gold-500/30 hover:border-gold-400 text-gray-200 hover:text-gold-400 py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all shadow-sm">{dist}</a>'
     main_nav_html += '</div>'
 
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 함수 (SEO 및 대전 단독 노출 처리)
-def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
+# 4. 페이지 생성 함수 (대전 & 청주 2개 업체 전용 고급 디자인 반영)
+def make_page_html(location_str, nav_html, rel_path_to_root, is_two_shop_region=False):
     page_html = template_content
     
-    seo_title = f"{location_str} 출장마사지 | 맞춤형 힐링 플랫폼"
-    seo_desc = f"{location_str} 지역 맞춤형 서비스 및 공식 제휴점 정보 안내. 최적의 만족을 제공하는 {location_str} 전문관입니다."
+    seo_title = f"{location_str} 출장마사지 | 프리미엄 힐링 가이드"
+    seo_desc = f"{location_str} 지역 맞춤형 서비스 및 검증된 공식 제휴점 정보. 최상급 케어를 제공하는 {location_str} 전문관입니다."
     
     if "<title>" in page_html:
         page_html = re.sub(r'<title>.*?</title>', f'<title>{seo_title}</title>', page_html)
@@ -128,37 +173,101 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = page_html.replace("{{ location_name }}", location_str)
     page_html = page_html.replace('href="/"', f'href="{rel_path_to_root}index.html"')
     
-    daejeon_shops_html = f'''
+    two_shops_html = f'''
     <section class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-[#121215] border border-gold-500/40 rounded-2xl p-6 shadow-xl">
-            <h3 class="text-xl font-black text-gold-400 mb-6 text-center">🌟 {location_str} 공식 제휴점 안내</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 제휴점 1 -->
-                <div class="bg-[#1a1a1f] p-6 rounded-2xl border border-gold-500/30 text-center shadow-lg hover:border-gold-400 transition-all">
-                    <span class="bg-gold-500/20 text-gold-400 text-xs px-3 py-1 rounded-full font-bold">공식 제휴점 1</span>
-                    <h4 class="text-xl font-extrabold text-white mt-3">S슬림홈타이</h4>
-                    <p class="text-gray-400 text-sm mt-2">친절 예약 및 프리미엄 맞춤 케어 시스템</p>
-                    <a href="tel:0507-1280-3342" class="mt-5 inline-block w-full bg-gold-500 hover:bg-gold-600 text-black font-black px-6 py-3 rounded-xl text-base transition-all shadow-md">📞 0507-1280-3342</a>
+        <div class="text-center mb-8">
+            <span class="inline-block bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs px-3 py-1 rounded-full font-bold mb-2">VERIFIED PREMIUM SHOPS</span>
+            <h3 class="text-2xl font-black text-white">✨ {location_str} 엄선 추천 제휴점</h3>
+            <p class="text-gray-400 text-xs mt-1">모두의홈타이가 직접 검증한 프리미엄 케어 샵입니다.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 제휴점 1: S슬림홈타이 -->
+            <div class="bg-gradient-to-b from-[#1c1c24] to-[#121218] border border-gold-500/40 rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-all hover:border-gold-400">
+                <div class="absolute top-0 right-0 bg-gold-500 text-black text-[11px] font-black px-3 py-1 rounded-bl-xl shadow-md">
+                    ★ BEST PREFERRED
                 </div>
-                <!-- 제휴점 2 -->
-                <div class="bg-[#1a1a1f] p-6 rounded-2xl border border-gold-500/30 text-center shadow-lg hover:border-gold-400 transition-all">
-                    <span class="bg-gold-500/20 text-gold-400 text-xs px-3 py-1 rounded-full font-bold">공식 제휴점 2</span>
-                    <h4 class="text-xl font-extrabold text-white mt-3">사쿠라 홈타이</h4>
-                    <p class="text-gray-400 text-sm mt-2">신속 방문 및 힐링 전문 홈 케어</p>
-                    <a href="tel:0507-1280-3343" class="mt-5 inline-block w-full bg-gold-500 hover:bg-gold-600 text-black font-extrabold px-6 py-3 rounded-xl text-base transition-all shadow-md">📞 0507-1280-3343</a>
+                
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-yellow-400 text-sm">★★★★★</span>
+                    <span class="text-gold-400 text-xs font-bold">5.0</span>
+                    <span class="text-gray-500 text-xs">(리뷰 최상위)</span>
                 </div>
+
+                <h4 class="text-2xl font-black text-white tracking-tight mb-1">S슬림홈타이</h4>
+                <p class="text-gold-400 text-xs font-semibold mb-4">슬림 케어 & 프리미엄 맞춤 힐링 전문</p>
+
+                <div class="bg-[#14141a] p-3.5 rounded-xl border border-white/5 mb-5 text-xs text-gray-300 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">⏰ 영업시간</span>
+                        <span class="font-bold text-white">24시간 연중무휴</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">🚗 방문지역</span>
+                        <span class="font-bold text-white">{location_str} 전지역 신속 이동</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5 mb-6">
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#친절예약</span>
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#맞춤케어</span>
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#힐링전문</span>
+                </div>
+
+                <a href="tel:0507-1280-3342" class="flex items-center justify-center gap-2 w-full bg-gold-500 hover:bg-gold-600 text-black font-black py-3.5 rounded-xl text-base transition-all shadow-lg shadow-gold-500/20 active:scale-95">
+                    <span>📞 전화 예약하기</span>
+                    <span class="text-xs font-extrabold opacity-80">(0507-1280-3342)</span>
+                </a>
+            </div>
+
+            <!-- 제휴점 2: 사쿠라 홈타이 -->
+            <div class="bg-gradient-to-b from-[#1c1c24] to-[#121218] border border-gold-500/40 rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-all hover:border-gold-400">
+                <div class="absolute top-0 right-0 bg-gold-500 text-black text-[11px] font-black px-3 py-1 rounded-bl-xl shadow-md">
+                    ★ POPULAR CHOICE
+                </div>
+
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-yellow-400 text-sm">★★★★★</span>
+                    <span class="text-gold-400 text-xs font-bold">4.9</span>
+                    <span class="text-gray-500 text-xs">(만족도 우수)</span>
+                </div>
+
+                <h4 class="text-2xl font-black text-white tracking-tight mb-1">사쿠라 홈타이</h4>
+                <p class="text-gold-400 text-xs font-semibold mb-4">신속 방문 & 편안한 아로마 케어</p>
+
+                <div class="bg-[#14141a] p-3.5 rounded-xl border border-white/5 mb-5 text-xs text-gray-300 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">⏰ 영업시간</span>
+                        <span class="font-bold text-white">24시간 연중무휴</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">🚗 방문지역</span>
+                        <span class="font-bold text-white">{location_str} 전지역 빠른 방문</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5 mb-6">
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#신속방문</span>
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#전문테라피</span>
+                    <span class="bg-white/5 border border-white/10 text-gray-300 text-[11px] px-2.5 py-1 rounded-lg">#재방문율높음</span>
+                </div>
+
+                <a href="tel:0507-1280-3343" class="flex items-center justify-center gap-2 w-full bg-gold-500 hover:bg-gold-600 text-black font-black py-3.5 rounded-xl text-base transition-all shadow-lg shadow-gold-500/20 active:scale-95">
+                    <span>📞 전화 예약하기</span>
+                    <span class="text-xs font-extrabold opacity-80">(0507-1280-3343)</span>
+                </a>
             </div>
         </div>
     </section>
     '''
 
-    if is_daejeon:
+    if is_two_shop_region:
         if "<main" in page_html and "</main>" in page_html:
             main_start = page_html.find("<main")
             main_end = page_html.find("</main>") + 7
             main_open_tag = page_html[main_start:page_html.find(">", main_start) + 1]
             
-            new_main_content = f"{main_open_tag}\n{daejeon_shops_html}\n{nav_html if nav_html else ''}\n</main>"
+            new_main_content = f"{main_open_tag}\n{two_shops_html}\n{nav_html if nav_html else ''}\n</main>"
             page_html = page_html[:main_start] + new_main_content + page_html[main_end:]
     else:
         if nav_html and "</main>" in page_html:
@@ -167,7 +276,7 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     return page_html
 
 # 5. 최상위 메인 페이지 생성
-root_main_html = make_page_html("전국(서울·인천·경기·대전) 전지역", main_nav_html, "")
+root_main_html = make_page_html("전국(서울·인천·경기·대전·청주) 전지역", main_nav_html, "")
 with open("index.html", "w", encoding="utf-8") as out:
     out.write(root_main_html)
 with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as out:
@@ -178,8 +287,18 @@ total_towns = 0
 created_districts = 0
 
 for district_name, city in district_to_city.items():
-    city_name = "서울특별시" if city == "seoul" else ("인천광역시" if city == "incheon" else ("경기도" if city == "gyeonggi" else "대전광역시"))
-    is_daejeon_region = (city == "daejeon")
+    if city == "seoul":
+        city_name = "서울특별시"
+    elif city == "incheon":
+        city_name = "인천광역시"
+    elif city == "gyeonggi":
+        city_name = "경기도"
+    elif city == "daejeon":
+        city_name = "대전광역시"
+    else:
+        city_name = "청주시"
+    
+    is_special_two_shops = (city in ["daejeon", "cheongju"])
     
     # (1) 구 메인 페이지
     dist_location = f"{city_name} {district_name}"
@@ -190,7 +309,7 @@ for district_name, city in district_to_city.items():
         towns_nav += f'<a href="{t}/index.html" class="bg-[#18181c] border border-gold-500/30 hover:border-gold-400 text-gray-200 hover:text-gold-400 py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all shadow-sm">{t}</a>'
     towns_nav += '</div></div>'
     
-    dist_html = make_page_html(dist_location + " 전지역", towns_nav, "../../../", is_daejeon=is_daejeon_region)
+    dist_html = make_page_html(dist_location + " 전지역", towns_nav, "../../../", is_two_shop_region=is_special_two_shops)
     dist_dir = os.path.join(output_dir, city, district_name)
     os.makedirs(dist_dir, exist_ok=True)
     
@@ -204,7 +323,7 @@ for district_name, city in district_to_city.items():
     # (2) 동 상세 페이지
     for town_name in towns_in_dist:
         town_location = f"{city_name} {district_name} {town_name}"
-        town_html = make_page_html(town_location, "", "../../../../", is_daejeon=is_daejeon_region)
+        town_html = make_page_html(town_location, "", "../../../../", is_two_shop_region=is_special_two_shops)
         
         town_dir = os.path.join(output_dir, city, district_name, town_name)
         os.makedirs(town_dir, exist_ok=True)
@@ -238,5 +357,4 @@ sitemap_xml += '</urlset>'
 with open("sitemap.xml", "w", encoding="utf-8") as f:
     f.write(sitemap_xml)
 
-print(f"✨ 전국 페이지, robots.txt, sitemap.xml 자동 생성 완료!")
-print(f"총 {len(all_page_urls)}개 URL이 sitemap.xml에 수집되었습니다.")
+print(f"✨ 경기도 전지역 대폭 확장 및 사이트맵 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
