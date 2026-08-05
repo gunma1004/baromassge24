@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://moduhomethai.shop/sitemap.xml

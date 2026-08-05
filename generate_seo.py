@@ -2,12 +2,18 @@ import os
 import csv
 import re
 
+# 0. 도메인 기본 주소 설정 (HTTPS 필수)
+SITE_URL = "https://moduhomethai.shop"
+
 # 1. 템플릿 파일 읽기
 with open("templates/base.html", "r", encoding="utf-8") as f:
     template_content = f.read()
 
 output_dir = "output"
 os.makedirs(output_dir, exist_ok=True)
+
+# 생성된 모든 페이지의 URL을 담을 리스트 (사이트맵 생성용)
+all_page_urls = [f"{SITE_URL}/index.html"]
 
 # 2. 데이터 구조화 (서울, 인천, 경기, 대전 전지역)
 district_to_towns = {}
@@ -102,7 +108,7 @@ if daejeon_dists:
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 함수 (대전 지역일 경우 다른 업체 전체 제거 및 대전 2개만 노출)
+# 4. 페이지 생성 함수 (SEO 및 대전 단독 노출 처리)
 def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = template_content
     
@@ -122,7 +128,6 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = page_html.replace("{{ location_name }}", location_str)
     page_html = page_html.replace('href="/"', f'href="{rel_path_to_root}index.html"')
     
-    # 대전 전지역 전용 2개 업체 카드 HTML
     daejeon_shops_html = f'''
     <section class="max-w-4xl mx-auto px-4 py-8">
         <div class="bg-[#121215] border border-gold-500/40 rounded-2xl p-6 shadow-xl">
@@ -148,7 +153,6 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     '''
 
     if is_daejeon:
-        # base.html에 작성되어 있는 기존 메인 컨텐츠 영역을 대전 2개 업체 전용 섹션으로 완전히 치환
         if "<main" in page_html and "</main>" in page_html:
             main_start = page_html.find("<main")
             main_end = page_html.find("</main>") + 7
@@ -169,23 +173,15 @@ with open("index.html", "w", encoding="utf-8") as out:
 with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as out:
     out.write(root_main_html)
 
-# 6. 모든 구 및 동 페이지 생성
+# 6. 모든 구 및 동 페이지 생성 & 사이트맵 URL 수집
 total_towns = 0
 created_districts = 0
 
 for district_name, city in district_to_city.items():
-    if city == "seoul":
-        city_name = "서울특별시"
-    elif city == "incheon":
-        city_name = "인천광역시"
-    elif city == "gyeonggi":
-        city_name = "경기도"
-    else:
-        city_name = "대전광역시"
-    
+    city_name = "서울특별시" if city == "seoul" else ("인천광역시" if city == "incheon" else ("경기도" if city == "gyeonggi" else "대전광역시"))
     is_daejeon_region = (city == "daejeon")
     
-    # (1) 구/시 메인 페이지
+    # (1) 구 메인 페이지
     dist_location = f"{city_name} {district_name}"
     towns_in_dist = district_to_towns.get(district_name, [])
     
@@ -197,9 +193,13 @@ for district_name, city in district_to_city.items():
     dist_html = make_page_html(dist_location + " 전지역", towns_nav, "../../../", is_daejeon=is_daejeon_region)
     dist_dir = os.path.join(output_dir, city, district_name)
     os.makedirs(dist_dir, exist_ok=True)
+    
     with open(os.path.join(dist_dir, "index.html"), "w", encoding="utf-8") as out:
         out.write(dist_html)
     created_districts += 1
+    
+    # 구 페이지 URL 등록
+    all_page_urls.append(f"{SITE_URL}/output/{city}/{district_name}/index.html")
     
     # (2) 동 상세 페이지
     for town_name in towns_in_dist:
@@ -208,8 +208,35 @@ for district_name, city in district_to_city.items():
         
         town_dir = os.path.join(output_dir, city, district_name, town_name)
         os.makedirs(town_dir, exist_ok=True)
+        
         with open(os.path.join(town_dir, "index.html"), "w", encoding="utf-8") as out:
             out.write(town_html)
         total_towns += 1
+        
+        # 동 페이지 URL 등록
+        all_page_urls.append(f"{SITE_URL}/output/{city}/{district_name}/{town_name}/index.html")
 
-print(f"✨ 대전 단독 2개 업체 분리 및 전국 통합 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
+
+# 7. 🤖 robots.txt 생성
+robots_content = f"""User-agent: *
+Allow: /
+Sitemap: {SITE_URL}/sitemap.xml
+"""
+with open("robots.txt", "w", encoding="utf-8") as f:
+    f.write(robots_content)
+
+
+# 8. 🗺️ sitemap.xml 생성
+sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+for url in all_page_urls:
+    sitemap_xml += f'  <url>\n    <loc>{url}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n'
+
+sitemap_xml += '</urlset>'
+
+with open("sitemap.xml", "w", encoding="utf-8") as f:
+    f.write(sitemap_xml)
+
+print(f"✨ 전국 페이지, robots.txt, sitemap.xml 자동 생성 완료!")
+print(f"총 {len(all_page_urls)}개 URL이 sitemap.xml에 수집되었습니다.")
