@@ -9,11 +9,11 @@ with open("templates/base.html", "r", encoding="utf-8") as f:
 output_dir = "output"
 os.makedirs(output_dir, exist_ok=True)
 
-# 2. 데이터 구조화 (서울, 인천, 경기 + 대전 전지역 확장)
+# 2. 데이터 구조화 (서울, 인천, 경기, 대전 전지역 통합)
 district_to_towns = {}
 district_to_city = {}
 
-# (1) 기존 CSV 파일 읽기
+# (1) 기존 CSV 파일 읽기 (서울 등)
 csv_path = "data/regions_with_shop.csv"
 if os.path.exists(csv_path):
     with open(csv_path, "r", encoding="utf-8") as file:
@@ -68,7 +68,7 @@ for dist, towns in daejeon_data.items():
     district_to_towns[dist] = towns
 
 
-# 3. 최상위 메인 화면 네비게이션 생성 (대전 전지역 추가)
+# 3. 최상위 메인 화면 네비게이션 생성 (대전 포함)
 main_nav_html = '<div class="max-w-5xl mx-auto px-4 py-8"><h2 class="text-xl font-black text-white mb-6 text-center">📍 전국 지역별 전문관</h2>'
 seoul_dists = [d for d, c in district_to_city.items() if c == "seoul"]
 incheon_dists = [d for d, c in district_to_city.items() if c == "incheon"]
@@ -94,7 +94,7 @@ if gyeonggi_dists:
     main_nav_html += '</div>'
 
 if daejeon_dists:
-    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (제휴점 2개 전지역 특화)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
+    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (제휴점 2개 특화)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
     for dist in daejeon_dists:
         main_nav_html += f'<a href="output/daejeon/{dist}/index.html" class="bg-[#18181c] border border-gold-500/30 hover:border-gold-400 text-gray-200 hover:text-gold-400 py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all shadow-sm">{dist}</a>'
     main_nav_html += '</div>'
@@ -102,7 +102,7 @@ if daejeon_dists:
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 헬퍼 함수 (대전 지역일 경우 2개 업체 카드 자동 삽입)
+# 4. 페이지 생성 헬퍼 함수 (대전 지역일 경우 2개 업체 카드 삽입)
 def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = template_content
     
@@ -122,7 +122,7 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = page_html.replace("{{ location_name }}", location_str)
     page_html = page_html.replace('href="/"', f'href="{rel_path_to_root}index.html"')
     
-    # 대전 전지역 전용 2개 업체 카드 HTML 생성
+    # 대전 지역 전용 2개 업체 카드 HTML 생성
     extra_content = ""
     if is_daejeon:
         extra_content = f'''
@@ -201,4 +201,4 @@ for district_name, city in district_to_city.items():
             out.write(town_html)
         total_towns += 1
 
-print(f"✨ 대전 전지역 2개 업체 특화 전문관 통합 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
+print(f"✨ 전국 통합 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
