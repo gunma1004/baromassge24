@@ -9,11 +9,11 @@ with open("templates/base.html", "r", encoding="utf-8") as f:
 output_dir = "output"
 os.makedirs(output_dir, exist_ok=True)
 
-# 2. 데이터 구조화 (서울, 인천, 경기, 대전 전지역 통합)
+# 2. 데이터 구조화 (서울, 인천, 경기, 대전 전지역)
 district_to_towns = {}
 district_to_city = {}
 
-# (1) 기존 CSV 파일 읽기 (서울 등)
+# (1) 기존 CSV 파일 읽기
 csv_path = "data/regions_with_shop.csv"
 if os.path.exists(csv_path):
     with open(csv_path, "r", encoding="utf-8") as file:
@@ -29,7 +29,7 @@ if os.path.exists(csv_path):
                 if town_name not in district_to_towns[district_name]:
                     district_to_towns[district_name].append(town_name)
 
-# (2) 인천광역시 주요 구/동 데이터 추가
+# (2) 인천광역시 주요 구/동 데이터
 incheon_data = {
     "남동구": ["구월1동", "구월2동", "구월3동", "구월4동", "간석1동", "간석2동", "간석3동", "만수1동", "만수2동", "서창동", "논현동"],
     "연수구": ["옥련동", "선학동", "연수동", "청학동", "동춘동", "송도1동", "송도2동", "송도3동", "송도4동", "송도5동"],
@@ -41,7 +41,7 @@ for dist, towns in incheon_data.items():
     district_to_city[dist] = "incheon"
     district_to_towns[dist] = towns
 
-# (3) 경기도 주요 시/구 데이터 추가
+# (3) 경기도 주요 시/구 데이터
 gyeonggi_data = {
     "수원시 장안구": ["영화동", "조원동", "파장동", "정자동", "이목동", "율전동"],
     "수원시 권선구": ["세류동", "평동", "서둔동", "구운동", "금곡동", "호매실동", "권선동"],
@@ -55,7 +55,7 @@ for dist, towns in gyeonggi_data.items():
     district_to_city[dist] = "gyeonggi"
     district_to_towns[dist] = towns
 
-# (4) 🌟 대전광역시 전지역(동구, 중구, 서구, 유성구, 대덕구) 추가
+# (4) 🌟 대전광역시 전지역 (동구, 중구, 서구, 유성구, 대덕구)
 daejeon_data = {
     "대전 동구": ["중앙동", "신인동", "효동", "판암1동", "판암2동", "용운동", "대동", "자양동", "가양1동", "가양2동", "용전동", "성남동", "낭월동"],
     "대전 중구": ["은행선화동", "응동", "중촌동", "태평1동", "태평2동", "유천1동", "유천2동", "문화1동", "문화2동", "산성동"],
@@ -68,7 +68,7 @@ for dist, towns in daejeon_data.items():
     district_to_towns[dist] = towns
 
 
-# 3. 최상위 메인 화면 네비게이션 생성 (대전 포함)
+# 3. 최상위 메인 화면 네비게이션 생성
 main_nav_html = '<div class="max-w-5xl mx-auto px-4 py-8"><h2 class="text-xl font-black text-white mb-6 text-center">📍 전국 지역별 전문관</h2>'
 seoul_dists = [d for d, c in district_to_city.items() if c == "seoul"]
 incheon_dists = [d for d, c in district_to_city.items() if c == "incheon"]
@@ -94,7 +94,7 @@ if gyeonggi_dists:
     main_nav_html += '</div>'
 
 if daejeon_dists:
-    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (제휴점 2개 특화)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
+    main_nav_html += '<h3 class="text-sm font-bold text-gold-400 mb-2">🌟 대전광역시 (제휴점 2개 단독)</h3><div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">'
     for dist in daejeon_dists:
         main_nav_html += f'<a href="output/daejeon/{dist}/index.html" class="bg-[#18181c] border border-gold-500/30 hover:border-gold-400 text-gray-200 hover:text-gold-400 py-2.5 px-2 rounded-xl text-xs font-bold text-center transition-all shadow-sm">{dist}</a>'
     main_nav_html += '</div>'
@@ -102,12 +102,12 @@ if daejeon_dists:
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 헬퍼 함수 (대전 지역일 경우 2개 업체 카드 삽입)
+# 4. 페이지 생성 함수 (대전 지역일 때 다른 모든 업체 카드 제거 후 대전 2개만 삽입)
 def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = template_content
     
-    seo_title = f"{location_str} 전문 안내 | 맞춤형 서비스 플랫폼"
-    seo_desc = f"{location_str} 지역 맞춤형 서비스 안내 및 제휴점 정보. 최적의 만족을 제공하는 {location_str} 전문관입니다."
+    seo_title = f"{location_str} 출장마사지 | 맞춤형 힐링 플랫폼"
+    seo_desc = f"{location_str} 지역 맞춤형 서비스 및 공식 제휴점 정보 안내. 최적의 만족을 제공하는 {location_str} 전문관입니다."
     
     if "<title>" in page_html:
         page_html = re.sub(r'<title>.*?</title>', f'<title>{seo_title}</title>', page_html)
@@ -122,32 +122,42 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = page_html.replace("{{ location_name }}", location_str)
     page_html = page_html.replace('href="/"', f'href="{rel_path_to_root}index.html"')
     
-    # 대전 지역 전용 2개 업체 카드 HTML 생성
-    extra_content = ""
+    # 대전 지역일 경우 특수 처리
     if is_daejeon:
-        extra_content = f'''
+        daejeon_shops_html = f'''
         <div class="max-w-4xl mx-auto px-4 py-8 bg-[#121215] border border-gold-500/40 rounded-2xl my-6 shadow-xl">
-            <h3 class="text-xl font-black text-gold-400 mb-4 text-center">🌟 {location_str} 공식 추천 제휴점 안내</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-[#1a1a1f] p-5 rounded-xl border border-gold-500/20 text-center">
-                    <span class="bg-gold-500/20 text-gold-400 text-xs px-2.5 py-1 rounded-full font-bold">제휴점 1</span>
-                    <h4 class="text-lg font-bold text-white mt-3">S슬림홈타이</h4>
-                    <p class="text-gray-400 text-sm mt-1">친절 예약 및 맞춤 케어 시스템</p>
-                    <a href="tel:0507-1280-3342" class="mt-4 inline-block bg-gold-500 hover:bg-gold-600 text-black font-extrabold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md">📞 0507-1280-3342</a>
+            <h3 class="text-xl font-black text-gold-400 mb-6 text-center">🌟 {location_str} 공식 제휴점 안내</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 제휴점 1 -->
+                <div class="bg-[#1a1a1f] p-6 rounded-2xl border border-gold-500/30 text-center shadow-lg hover:border-gold-400 transition-all">
+                    <span class="bg-gold-500/20 text-gold-400 text-xs px-3 py-1 rounded-full font-bold">공식 제휴점 1</span>
+                    <h4 class="text-xl font-extrabold text-white mt-3">S슬림홈타이</h4>
+                    <p class="text-gray-400 text-sm mt-2">친절 예약 및 프리미엄 맞춤 케어 시스템</p>
+                    <a href="tel:0507-1280-3342" class="mt-5 inline-block w-full bg-gold-500 hover:bg-gold-600 text-black font-black px-6 py-3 rounded-xl text-base transition-all shadow-md">📞 0507-1280-3342</a>
                 </div>
-                <div class="bg-[#1a1a1f] p-5 rounded-xl border border-gold-500/20 text-center">
-                    <span class="bg-gold-500/20 text-gold-400 text-xs px-2.5 py-1 rounded-full font-bold">제휴점 2</span>
-                    <h4 class="text-lg font-bold text-white mt-3">사쿠라 홈타이</h4>
-                    <p class="text-gray-400 text-sm mt-1">신속 방문 및 힐링 전문 케어</p>
-                    <a href="tel:0507-1280-3343" class="mt-4 inline-block bg-gold-500 hover:bg-gold-600 text-black font-extrabold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md">📞 0507-1280-3343</a>
+                <!-- 제휴점 2 -->
+                <div class="bg-[#1a1a1f] p-6 rounded-2xl border border-gold-500/30 text-center shadow-lg hover:border-gold-400 transition-all">
+                    <span class="bg-gold-500/20 text-gold-400 text-xs px-3 py-1 rounded-full font-bold">공식 제휴점 2</span>
+                    <h4 class="text-xl font-extrabold text-white mt-3">사쿠라 홈타이</h4>
+                    <p class="text-gray-400 text-sm mt-2">신속 방문 및 힐링 전문 홈 케어</p>
+                    <a href="tel:0507-1280-3343" class="mt-5 inline-block w-full bg-gold-500 hover:bg-gold-600 text-black font-extrabold px-6 py-3 rounded-xl text-base transition-all shadow-md">📞 0507-1280-3343</a>
                 </div>
             </div>
         </div>
         '''
-    
-    combined_nav = extra_content + (nav_html if nav_html else "")
-    if combined_nav and "</main>" in page_html:
-        page_html = page_html.replace("</main>", f"{combined_nav}</main>")
+        
+        # 템플릿 내에 기존 기본 업체 리스트 영역이 있다면 대전 2개 업체로 통째로 교체
+        if '<div id="shop-list">' in page_html or '<!-- shop_list -->' in page_html:
+            page_html = re.sub(r'<div id="shop-list">.*?</div>\s*<!-- /shop-list -->', daejeon_shops_html, page_html, flags=re.DOTALL)
+        else:
+            # 템플릿 메인 태그 끝에 안전하게 단독 삽입
+            if "</main>" in page_html:
+                page_html = page_html.replace("</main>", f"{daejeon_shops_html}{nav_html if nav_html else ''}</main>")
+            else:
+                page_html += daejeon_shops_html
+    else:
+        if nav_html and "</main>" in page_html:
+            page_html = page_html.replace("</main>", f"{nav_html}</main>")
         
     return page_html
 
@@ -201,4 +211,4 @@ for district_name, city in district_to_city.items():
             out.write(town_html)
         total_towns += 1
 
-print(f"✨ 전국 통합 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
+print(f"✨ 대전 단독 2개 업체 분리 및 전국 통합 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
