@@ -102,7 +102,7 @@ if daejeon_dists:
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 함수 (대전 지역일 때 다른 모든 업체 카드 제거 후 대전 2개만 삽입)
+# 4. 페이지 생성 함수 (대전 지역일 경우 다른 업체 전체 제거 및 대전 2개만 노출)
 def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = template_content
     
@@ -122,10 +122,10 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
     page_html = page_html.replace("{{ location_name }}", location_str)
     page_html = page_html.replace('href="/"', f'href="{rel_path_to_root}index.html"')
     
-    # 대전 지역일 경우 특수 처리
-    if is_daejeon:
-        daejeon_shops_html = f'''
-        <div class="max-w-4xl mx-auto px-4 py-8 bg-[#121215] border border-gold-500/40 rounded-2xl my-6 shadow-xl">
+    # 대전 전지역 전용 2개 업체 카드 HTML
+    daejeon_shops_html = f'''
+    <section class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-[#121215] border border-gold-500/40 rounded-2xl p-6 shadow-xl">
             <h3 class="text-xl font-black text-gold-400 mb-6 text-center">🌟 {location_str} 공식 제휴점 안내</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 제휴점 1 -->
@@ -144,17 +144,18 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_daejeon=False):
                 </div>
             </div>
         </div>
-        '''
-        
-        # 템플릿 내에 기존 기본 업체 리스트 영역이 있다면 대전 2개 업체로 통째로 교체
-        if '<div id="shop-list">' in page_html or '<!-- shop_list -->' in page_html:
-            page_html = re.sub(r'<div id="shop-list">.*?</div>\s*<!-- /shop-list -->', daejeon_shops_html, page_html, flags=re.DOTALL)
-        else:
-            # 템플릿 메인 태그 끝에 안전하게 단독 삽입
-            if "</main>" in page_html:
-                page_html = page_html.replace("</main>", f"{daejeon_shops_html}{nav_html if nav_html else ''}</main>")
-            else:
-                page_html += daejeon_shops_html
+    </section>
+    '''
+
+    if is_daejeon:
+        # base.html에 작성되어 있는 기존 메인 컨텐츠 영역을 대전 2개 업체 전용 섹션으로 완전히 치환
+        if "<main" in page_html and "</main>" in page_html:
+            main_start = page_html.find("<main")
+            main_end = page_html.find("</main>") + 7
+            main_open_tag = page_html[main_start:page_html.find(">", main_start) + 1]
+            
+            new_main_content = f"{main_open_tag}\n{daejeon_shops_html}\n{nav_html if nav_html else ''}\n</main>"
+            page_html = page_html[:main_start] + new_main_content + page_html[main_end:]
     else:
         if nav_html and "</main>" in page_html:
             page_html = page_html.replace("</main>", f"{nav_html}</main>")
