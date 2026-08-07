@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>커뮤니티 게시판</title>
-  <!-- Supabase JS SDK -->
+  <!-- Supabase JS SDK 공식 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-javascript@2"></script>
   <style>
     body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
@@ -37,20 +37,18 @@
 
     async function loadPosts() {
       const postListElement = document.getElementById('post-list');
-      
-      // Supabase 라이브러리 로드 체크
-      const supabaseLib = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-      
-      if (!supabaseLib) {
+
+      // CDN 로드 상태 직접 체크
+      if (typeof supabase === 'undefined' || !supabase.createClient) {
         if (postListElement) {
-          postListElement.innerHTML = '<p style="color:red;">Supabase 라이브러리를 로딩 중입니다. 잠시 후 다시 접속해 주세요.</p>';
+          postListElement.innerHTML = '<p style="color:red;">Supabase 모듈 로딩에 실패했습니다. 페이지를 새로고침해 주세요.</p>';
         }
         return;
       }
 
-      const _supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-      const { data: posts, error } = await _supabase
+      const { data: posts, error } = await client
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -89,10 +87,10 @@
       }
     }
 
-    // 창 전체(스크립트 라이브러리 포함)가 로드된 후 실행
-    window.addEventListener("load", () => {
+    // 문서 및 모든 외부 스크립트 로드 완료 후 즉시 호출
+    window.onload = function() {
       loadPosts();
-    });
+    };
   </script>
 </body>
 </html>
