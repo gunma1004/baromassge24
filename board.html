@@ -1,35 +1,68 @@
-<!-- Supabase JS SDK (최신버전 CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-javascript@2/dist/umd/supabase.js"></script>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>커뮤니티 게시판</title>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-javascript@2"></script>
+  <style>
+    body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 40px auto; padding: 24px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; }
+    .header h1 { font-size: 24px; color: #1e293b; margin: 0; }
+    .home-link { text-decoration: none; color: #3b82f6; font-weight: bold; font-size: 14px; }
+    .post-item { border-bottom: 1px solid #f1f5f9; padding: 16px 0; }
+    .post-item:last-child { border-bottom: none; }
+    .badge { background-color: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+    .post-title { font-size: 18px; color: #0f172a; margin: 8px 0; }
+    .post-content { color: #475569; font-size: 14px; line-height: 1.6; margin: 0; }
+    .post-date { color: #94a3b8; font-size: 12px; margin-top: 8px; display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>📌 커뮤니티 게시판</h1>
+      <a href="index.html" class="home-link">← 홈으로 돌아가기</a>
+    </div>
+
+    <div id="post-list">글을 불러오는 중입니다...</div>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://ilyxesxzqbuswtfhqnww.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_MsZQkYYDbioESCVT3t7lGw_kyJQRqPg";
-    
-    // window.supabase.createClient 형태로 안전하게 호출
-    const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
     async function loadPosts() {
-      if (!_supabase) {
-        console.error('Supabase 라이브러리가 아직 로드되지 않았습니다.');
-        document.getElementById('post-list').innerHTML = '<p style="color:red;">라이브러리 로딩 중 오류가 발생했습니다.</p>';
+      const postListElement = document.getElementById('post-list');
+      
+      // Supabase 라이브러리 로드 체크
+      const supabaseLib = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+      
+      if (!supabaseLib) {
+        if (postListElement) {
+          postListElement.innerHTML = '<p style="color:red;">Supabase 라이브러리를 로딩 중입니다. 잠시 후 다시 접속해 주세요.</p>';
+        }
         return;
       }
+
+      const _supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
       const { data: posts, error } = await _supabase
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      const postListElement = document.getElementById('post-list');
-
       if (error) {
         console.error('글 불러오기 오류:', error);
-        postListElement.innerHTML = '<p style="color:red;">글을 불러오는 중에 오류가 발생했습니다.</p>';
+        if (postListElement) postListElement.innerHTML = '<p style="color:red;">글을 불러오는 중에 오류가 발생했습니다.</p>';
         return;
       }
 
       if (!posts || posts.length === 0) {
-        postListElement.innerHTML = '<p>등록된 게시글이 없습니다.</p>';
+        if (postListElement) postListElement.innerHTML = '<p>등록된 게시글이 없습니다.</p>';
         return;
       }
 
@@ -51,11 +84,15 @@
         `;
       });
 
-      postListElement.innerHTML = htmlContent;
+      if (postListElement) {
+        postListElement.innerHTML = htmlContent;
+      }
     }
 
-    // DOM이 완전히 로드된 후 실행
-    document.addEventListener("DOMContentLoaded", () => {
+    // 창 전체(스크립트 라이브러리 포함)가 로드된 후 실행
+    window.addEventListener("load", () => {
       loadPosts();
     });
   </script>
+</body>
+</html>
