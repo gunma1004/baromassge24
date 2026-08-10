@@ -1,9 +1,13 @@
-﻿from supabase import create_client, Client
+﻿import os
+from supabase import create_client, Client
 
-# 1. Supabase 접속 정보
+# 1. Supabase 접속 정보 설정
 SUPABASE_URL = "https://ilyxesxzqbuswtfhqnww.supabase.co"
-SUPABASE_SECRET_KEY = "sb_publishable_MsZQkYYDbioESCVT3t7lGw_kyJQRqPg"
 
+# 2. Secret Key 처리 (깃허브 차단 방지를 위해 환경변수 우선 적용, 없으면 기본값 사용)
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY", "여기에_수파베이스_비밀키_입력")
+
+# Supabase 클라이언트 생성
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SECRET_KEY)
 
 TITLE_FILE = "titles.txt"
