@@ -2,8 +2,8 @@ import os
 import csv
 import re
 
-# 0. 도메인 기본 주소 설정 (HTTPS 필수)
-SITE_URL = "https://moduhomethai.shop"
+# 0. 도메인 기본 주소 설정 (새 도메인 반영)
+SITE_URL = "https://baromassage24.shop"
 
 # 1. 템플릿 파일 읽기
 with open("templates/base.html", "r", encoding="utf-8") as f:
@@ -153,12 +153,12 @@ if cheongju_dists:
 main_nav_html += '</div>'
 
 
-# 4. 페이지 생성 함수 (대전 & 청주 2개 업체 전용 고급 디자인 반영)
+# 4. 페이지 생성 함수 (대전 & 청주 2개 업체 전용 고급 디자인 및 바로마사지24 문구 반영)
 def make_page_html(location_str, nav_html, rel_path_to_root, is_two_shop_region=False):
     page_html = template_content
     
-    seo_title = f"{location_str} 출장마사지 | 프리미엄 힐링 가이드"
-    seo_desc = f"{location_str} 지역 맞춤형 서비스 및 검증된 공식 제휴점 정보. 최상급 케어를 제공하는 {location_str} 전문관입니다."
+    seo_title = f"{location_str} 출장마사지 | 바로마사지24 프리미엄 가이드"
+    seo_desc = f"{location_str} 지역 맞춤형 서비스 및 검증된 공식 제휴점 정보. 최상급 케어를 제공하는 {location_str} 바로마사지24 전문관입니다."
     
     if "<title>" in page_html:
         page_html = re.sub(r'<title>.*?</title>', f'<title>{seo_title}</title>', page_html)
@@ -178,7 +178,7 @@ def make_page_html(location_str, nav_html, rel_path_to_root, is_two_shop_region=
         <div class="text-center mb-8">
             <span class="inline-block bg-gold-500/10 border border-gold-500/30 text-gold-400 text-xs px-3 py-1 rounded-full font-bold mb-2">VERIFIED PREMIUM SHOPS</span>
             <h3 class="text-2xl font-black text-white">✨ {location_str} 엄선 추천 제휴점</h3>
-            <p class="text-gray-400 text-xs mt-1">모두의홈타이가 직접 검증한 프리미엄 케어 샵입니다.</p>
+            <p class="text-gray-400 text-xs mt-1">바로마사지24가 직접 검증한 프리미엄 케어 샵입니다.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -357,4 +357,4 @@ sitemap_xml += '</urlset>'
 with open("sitemap.xml", "w", encoding="utf-8") as f:
     f.write(sitemap_xml)
 
-print(f"✨ 경기도 전지역 대폭 확장 및 사이트맵 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
+print(f"✨ 바로마사지24 빌드 완료! (구/시: {created_districts}개, 동: {total_towns}개)")
